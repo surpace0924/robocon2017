@@ -3,7 +3,7 @@
 // @Date: 2017/10/21
 // @Author: Ryoga Sato
 // @Version: 1.0
-// @Description: 
+// @Description:
 // フルN、PN混合両方のMDを駆動できる
 // settings.hpp以外のファイルは書き換え禁止！！！！
 // @Update:
@@ -61,39 +61,49 @@ void loop()
 {
     while (1)
     {
-        int nowAngle = getAngle()/2;
+        int nowAngle = getAngle() / 2;
         if (recieveData())
-        { 
+        {
 
-            int targetAngle = arg[USE_MOTOR];
-            if(targetAngle > 90)
-            {
-              targetAngle -= 180;
-            }
+            // 角度計算には第1象限と第4象限のみ使用（-90~90[deg]）
+            int targetAngle = (arg[USE_MOTOR] > 90) ? arg[USE_MOTOR] - 180 : arg[USE_MOTOR];
 
-            
-             Serial.print(targetAngle);
-             Serial.print(" ");
-             Serial.println(nowAngle);
-          
             int output = pid.calculate(targetAngle, nowAngle, KP, KI, 0, 250);
-         
-//            Serial.println(pwm[0]);
-            // Serial.print(" ");
-            // Serial.print(" ");
-            // Serial.println(output);
-            
+
             int steerAngleDir;
-            if(output > 0)
+            if (output > 0)
                 steerAngleDir = CW;
-            else if(output < 0)
+            else if (output < 0)
                 steerAngleDir = CCW;
             else
                 steerAngleDir = BRK;
-            
 
+            if (arg[USE_MOTOR] > 90)
+            {
+                if (dir[USE_MOTOR] == CW)
+                    dir[USE_MOTOR] = CCW;
+                else if (dir[USE_MOTOR] == CCW)
+                    dir[USE_MOTOR] = CW;
+                else
+                    dir[USE_MOTOR] = BRK;
+            }
+
+            // 出力
             driveMotorOfFN(steerAngleDir, abs(output), 0);
             driveMotorOfFN(dir[USE_MOTOR], pwm[USE_MOTOR], 1);
+
+            // デバッグ
+            Serial.print(arg[USE_MOTOR]);
+            Serial.print(" ");
+            Serial.print(targetAngle);
+            Serial.print(" ");
+            if (dir[USE_MOTOR] == CCW)
+                Serial.print(-1 * pwm[USE_MOTOR]);
+            else
+                Serial.print(pwm[USE_MOTOR]);
+            Serial.print(" ");
+            Serial.println(output);
+
             digitalWrite(ERROR_LED_PIN, LOW);
         }
         else

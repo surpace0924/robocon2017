@@ -25,102 +25,9 @@ namespace WheelControlSupportSystem
 			// タイマーを開始
 			timer1.Start();
 		}
-
-
-		double fieldScale;
-
+		
 		private void Form1_Load(object sender, EventArgs e)
 		{
-			fieldScale = double.Parse(txbFieldScale.Text);
-
-			Console.WriteLine("縮尺:" + txbFieldScale.Text + "mm/px");
-		}
-
-		int map(int x, int in_min, int in_max, int out_min, int out_max)
-		{
-			return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-		}
-
-		int[] startCoordinate = { 0, 0 };
-
-		int[,] velocityVector = { { 0, 0 }, { 0, 0 } };
-		int[,] startVector = { { 0, 0 }, { 0, 0 } };
-		int[,] routeVector = { { 0, 0 }, { 0, 0 } };
-		int[,] endVector = { { 0, 0 }, { 0, 0 } };
-
-		bool isStart = true;
-
-		private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
-		{
-			int xAxis = e.X;
-			int yAxis = pictureBox1.Height - e.Y;
-
-			// 点の描画
-			drawEllipseByPoint(xAxis, yAxis, pictureBox1);
-
-			if (isStart)
-			{
-				// 始点の座標が入力されていない
-				// 始点の座標を入力
-				startCoordinate[0] = xAxis;
-				startCoordinate[1] = yAxis;
-
-
-				velocityVector[0, 0] = xAxis;
-				velocityVector[0, 1] = yAxis;
-
-				isStart = false;
-			}
-			else
-			{
-				double arg = Math.Atan2((yAxis - startCoordinate[1]), (xAxis - startCoordinate[0]));
-				double radius = (Math.Sqrt(Math.Pow((yAxis - startCoordinate[1]), 2) + Math.Pow((xAxis - startCoordinate[0]), 2)));
-
-
-				int[] drawingCoordinate = { (int)(((1000.0 / fieldScale) / radius) * (xAxis - startCoordinate[0]) + startCoordinate[0]), (int)(((1000.0 / fieldScale) / radius) * (yAxis - startCoordinate[1]) + startCoordinate[1]) };
-
-
-				Console.WriteLine("始点: (" + startCoordinate[0] * fieldScale + ", " + startCoordinate[1] * fieldScale + ")");
-				Console.WriteLine("終点: (" + drawingCoordinate[0] * fieldScale + ", " + drawingCoordinate[1] * fieldScale + ")");
-				Console.WriteLine("長さ: " + radius * fieldScale);
-				Console.WriteLine("角度: " + arg);
-				Console.WriteLine();
-
-				// 図形の描画
-				drawEllipseByPoint(xAxis, yAxis, pictureBox1);
-				drawLineByPoint(startCoordinate[0], startCoordinate[1], drawingCoordinate[0], drawingCoordinate[1], pictureBox1);
-
-
-				velocityVector[1, 0] = drawingCoordinate[0];
-				velocityVector[1, 1] = drawingCoordinate[1];
-
-				isStart = true;
-			}
-
-		}
-
-		private void button1_Click(object sender, EventArgs e)
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				for (int j = 0; j < 2; j++)
-				{
-					startVector[i, j] = velocityVector[i, j];
-				}
-			}
-			Console.WriteLine("始点:   {(" + velocityVector[0, 0] * fieldScale + ", " + (velocityVector[0, 1]) * fieldScale + "), (" + velocityVector[1, 0] * fieldScale + ", " + (velocityVector[1, 1]) * fieldScale + ")}");
-		}
-
-		private void button4_Click(object sender, EventArgs e)
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				for (int j = 0; j < 2; j++)
-				{
-					endVector[i, j] = velocityVector[i, j];
-				}
-			}
-			Console.WriteLine("終点:   {(" + velocityVector[0, 0] * fieldScale + ", " + (velocityVector[0, 1]) * fieldScale + "), (" + velocityVector[1, 0] * fieldScale + ", " + (velocityVector[1, 1]) * fieldScale + ")}");
 		}
 
 		private void drawEllipseByPoint(int x, int y, PictureBox p)
@@ -158,75 +65,7 @@ namespace WheelControlSupportSystem
 			//PictureBox1に表示する
 			p.Image = canvas;
 		}
-
-
-		private void btnCal_Click(object sender, EventArgs e)
-		{
-
-			//描画先とするImageオブジェクトを作成する
-			Bitmap canvas = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-			//ImageオブジェクトのGraphicsオブジェクトを作成する
-			Graphics g = Graphics.FromImage(canvas);
-
-			//ベジエ曲線の形状を決定する4つの点
-			Point point1 = new Point(startVector[0, 0], pictureBox1.Height - startVector[0, 1]);
-			Point point2 = new Point(startVector[1, 0], pictureBox1.Height - startVector[1, 1]);
-			Point point3 = new Point(routeVector[0, 0], pictureBox1.Height - routeVector[0, 1]);
-			Point point4 = new Point(routeVector[1, 0], pictureBox1.Height - routeVector[1, 1]);
-			Point point5 = new Point(endVector[0, 0], pictureBox1.Height - endVector[0, 1]);
-			Point point6 = new Point(endVector[1, 0], pictureBox1.Height - endVector[1, 1]);
-
-			Point[] curvePoints = { point1, point2, point3, point4, point5, point6 };
-
-			//幅3の青色のPenオブジェクトを作成
-			Pen bluePen = new Pen(Color.Blue, 3);
-			//テンション0.5（既定値）のカーディナルスプラインを描画
-			g.DrawCurve(bluePen, curvePoints, 0.5F);
-
-			//幅3の赤色のPenオブジェクトを作成
-			Pen redPen = new Pen(Color.Red, 3);
-			//テンション1のカーディナルスプラインを描画
-			g.DrawCurve(redPen, curvePoints, 1);
-
-			//幅3の緑色のPenオブジェクトを作成
-			Pen greenPen = new Pen(Color.Green, 3);
-			//テンション0のカーディナルスプライン（直線となる）を描画
-			g.DrawCurve(greenPen, curvePoints, 0);
-
-			//幅1の黄色のPenオブジェクトを作成
-			Pen yellowPen = new Pen(Color.Yellow, 1);
-			//2番目の点から5番目の点までを通過するカーディナルスプラインを描画
-			g.DrawCurve(yellowPen, curvePoints, 1, 3, 0.5F);
-
-			//幅1の黒色のPenオブジェクトを作成
-			Pen blackPen = new Pen(Color.Black, 1);
-			//テンション1の閉じたカーディナルスプラインを描画
-			g.DrawClosedCurve(blackPen, curvePoints, 1, FillMode.Alternate);
-
-			//リソースを解放する
-			bluePen.Dispose();
-			redPen.Dispose();
-			greenPen.Dispose();
-			yellowPen.Dispose();
-			blackPen.Dispose();
-			g.Dispose();
-
-			//PictureBox1に表示する
-			pictureBox1.Image = canvas;
-		}
-
-		private void button2_Click(object sender, EventArgs e)
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				for (int j = 0; j < 2; j++)
-				{
-					routeVector[i, j] = velocityVector[i, j];
-				}
-
-				Console.WriteLine("中間点: {(" + velocityVector[0, 0] * fieldScale + ", " + (velocityVector[0, 1]) * fieldScale + "), (" + velocityVector[1, 0] * fieldScale + ", " + (velocityVector[1, 1]) * fieldScale + ")}");
-			}
-		}
+		
 
 		int[] stickVal = { 0, 0, 0 };
 		private void pcbLeftAxis_MouseClick(object sender, MouseEventArgs e)
@@ -329,79 +168,94 @@ namespace WheelControlSupportSystem
 				int stickS = 100+(int)(double.Parse(stArrayData[2])/2.25);
 				drawEllipseByPoint(stickX, stickY, pcbLeftAxis);
 				drawEllipseByPoint(stickS, 100, pcbRightAxis);
-				
-				int x;
-				int y;
-				int r;
+
+				PictureBox[] pcbVector = { pcbVector0, pcbVector1, pcbVector2, pcbVector3 };
+				Label[] labWheelArg = { labWheelArg0, labWheelArg1, labWheelArg2, labWheelArg3 };
+				Label[] labWheelPwm = { labWheelPwm0, labWheelPwm1, labWheelPwm2, labWheelPwm3 };
 
 
-
-
-				if (int.Parse(stArrayData[4]) > 0)
+				for (int i = 3; i <= 10; i += 2)
 				{
-					r = (int)(double.Parse(stArrayData[4]) / 2.55);
-				}
-				else
-				{
-					r = -1 * (int)(double.Parse(stArrayData[4]) / 2.55);
-				}
-				r = (int)(double.Parse(stArrayData[4]) / 2.55);
-				x = 105 + (int)(r * Math.Cos(int.Parse(stArrayData[3]) * (Math.PI / 180)));
-				y = 105 + (int)(r * Math.Sin(int.Parse(stArrayData[3]) * (Math.PI / 180)));
-				drawLineByPoint(105, 105, x, y, pcbWheel0);
-				labWheelArg0.Text = stArrayData[3];
-				labWheelPwm0.Text = stArrayData[4];
+	
+					int targetAngle = (int.Parse(stArrayData[i]) > 90) ? int.Parse(stArrayData[i]) - 180 : int.Parse(stArrayData[i]);
 
+					int r;
 
-				if (int.Parse(stArrayData[6]) > 0)
-				{
-					r = (int)(double.Parse(stArrayData[6]) / 2.55);
-				}
-				else
-				{
-					r = -1 * (int)(double.Parse(stArrayData[6]) / 2.55);
-				}
-				r = (int)(double.Parse(stArrayData[6]) / 2.55);
-				x = 105 + (int)(r * Math.Cos(int.Parse(stArrayData[5]) * (Math.PI / 180)));
-				y = 105 + (int)(r * Math.Sin(int.Parse(stArrayData[5]) * (Math.PI / 180)));
-				drawLineByPoint(105, 105, x, y, pcbWheel1);
-				labWheelArg1.Text = stArrayData[5];
-				labWheelPwm1.Text = stArrayData[6];
+					if (int.Parse(stArrayData[i]) > 90)
+					{
+						r = -1*(int)(double.Parse(stArrayData[i+1]) / 2.55);
+					}
+					else
+					{
+						r = (int)(double.Parse(stArrayData[i+1]) / 2.55);
+					}
 
+					int tmpAngle = targetAngle;
+					if (i == 7 || i == 9)
+					{
+						tmpAngle += 180;
+					}
 
-				if (int.Parse(stArrayData[8]) > 0)
-				{
-					r = (int)(double.Parse(stArrayData[8]) / 2.55);
-				}
-				else
-				{
-					r = -1 * (int)(double.Parse(stArrayData[8]) / 2.55);
-				}
-				r = (int)(double.Parse(stArrayData[8]) / 2.55);
-				x = 105 + (int)(r * Math.Cos(int.Parse(stArrayData[7]) * (Math.PI / 180)));
-				y = 105 + (int)(r * Math.Sin(int.Parse(stArrayData[7]) * (Math.PI / 180)));
-				drawLineByPoint(105,105,x,y, pcbWheel2);
-				labWheelArg2.Text = stArrayData[7];
-				labWheelPwm2.Text = stArrayData[8];
+					int x = 105 + (int)(r * Math.Cos(targetAngle * (Math.PI / 180)));
+					int y = 105 + (int)(r * Math.Sin(targetAngle * (Math.PI / 180)));
 
+					displayWheel(tmpAngle, 105, 105, x, y, pcbVector[(i - 3) / 2]);
 
-				if (int.Parse(stArrayData[10]) > 0)	
-				{
-					r = (int)(double.Parse(stArrayData[8]) / 2.55);
+					labWheelArg[(i - 3) / 2].Text = targetAngle.ToString();
+					labWheelPwm[(i - 3) / 2].Text = r.ToString();
 				}
-				else
-				{
-					r = -1 * (int)(double.Parse(stArrayData[8]) / 2.55);
-				}
-				r = (int)(double.Parse(stArrayData[10]) / 2.55);
-				x = 105 + (int)(r * Math.Cos(int.Parse(stArrayData[9]) * (Math.PI / 180)));
-				y = 105 + (int)(r * Math.Sin(int.Parse(stArrayData[9]) * (Math.PI / 180)));
-				drawLineByPoint(105,105,x,y, pcbWheel3);
-				labWheelArg3.Text = stArrayData[9];
-				labWheelPwm3.Text = stArrayData[10];
 			}
 
 			receivedData = receivedData.Replace(this.serialPort1.NewLine, "\r\n");
+		}
+
+		private void displayWheel(int arg, int sx, int sy, int gx, int gy, PictureBox p)
+		{
+			arg = 360 - arg;
+			//描画先とするImageオブジェクトを作成する
+			Bitmap canvas = new Bitmap(p.Width, p.Height);
+			//ImageオブジェクトのGraphicsオブジェクトを作成する
+			Graphics g = Graphics.FromImage(canvas);
+
+			//描画する画像のBitmapオブジェクトを作成
+			Bitmap img = new Bitmap("Wheel.gif");
+
+			//ラジアン単位に変換
+			double d = arg / (180 / Math.PI);
+			//新しい座標位置を計算する
+			float x = 87F;
+			float y = 130F;
+			if (p == pcbVector2 || p == pcbVector3)
+			{
+				x = 130F;
+				y = 87F;
+			}
+			float x1 = x + img.Width * (float)Math.Cos(d);
+			float y1 = y + img.Width * (float)Math.Sin(d);
+			float x2 = x - img.Height * (float)Math.Sin(d);
+			float y2 = y + img.Height * (float)Math.Cos(d);
+			//PointF配列を作成
+			PointF[] destinationPoints = {new PointF(x, y),
+					new PointF(x1, y1),
+					new PointF(x2, y2)};
+			//画像を表示
+			g.DrawImage(img, destinationPoints);
+
+			//PictureBox1に表示する
+			p.Image = canvas;
+			
+
+			g.FillEllipse(Brushes.Black, sx - 5, (p.Height - sy) - 5, 10, 10);
+			g.FillEllipse(Brushes.Black, gx - 5, (p.Height - gy) - 5, 10, 10);
+			g.DrawLine(Pens.Black, sx, (p.Height - sy), gx, (p.Height - gy));
+
+
+			//リソースを解放する
+			g.Dispose();
+			img.Dispose();
+
+			//PictureBox1に表示する
+			p.Image = canvas;
 		}
 
 		private static int countKeywrod(string str, char ch)
@@ -464,6 +318,10 @@ namespace WheelControlSupportSystem
 
 		}
 
+		private void button5_Click_1(object sender, EventArgs e)
+		{
+
+		}
 	}
 }
 

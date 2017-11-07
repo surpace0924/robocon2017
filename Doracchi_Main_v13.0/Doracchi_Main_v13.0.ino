@@ -110,7 +110,7 @@ void loop()
 bool driveSteer()
 {
     // 出力値を格納
-    int dir[4] = {0};
+    static int dir[4] = {0};
     int pwm[4] = {0};
     int arg[4] = {0};
 
@@ -119,17 +119,14 @@ bool driveSteer()
     for (int i = 0; i < 3; i++)
         velocityVector[i] = (abs(propo.getStickVal(i)) < STICK_TH) ? 0 : propo.getStickVal(i);
 
+    // 計算
     calculate(velocityVector, 250, dir, pwm, arg);
 
-    // Serial.println(dir[0]);
-
     // 移動データを送信
-//    tx.sendDataForSteer(dir, pwm, arg, 0);
+    // tx.sendDataForSteer(dir, pwm, arg, 0);
     tx.sendDataForSteer(dir, pwm, arg, 1);
-    // tx.confirmDataBySerialMonitor(dir, pwm);
-    // tx.confirmDataBySerialPlotter(dir, pwm);
-
     tx.confirmDataForSteerBySerialMonitor(velocityVector, dir, pwm, arg);
+
     for (int i = 0; i < 4; i++)
         if ((dir[i] != BRK) && (pwm[i] > 0))
             return true;
@@ -139,7 +136,11 @@ bool driveSteer()
 
 void calculate(int _velocityVector[3], int maxOutputRate, int _dir[4], int _pwm[4], int _arg[4])
 {
-    if (_velocityVector[0] == 0 && _velocityVector[1] == 0)
+    int xElement = _velocityVector[0];
+    int yElement = _velocityVector[1];
+    int spinElement = _velocityVector[2];
+
+    if (xElement == 0 && yElement == 0 && spinElement != 0)
     {
         // 旋回成分のみ
         int i = 0;
@@ -150,47 +151,77 @@ void calculate(int _velocityVector[3], int maxOutputRate, int _dir[4], int _pwm[
 
         for (int i = 0; i < 4; i++)
         {
-          // こうなるらしい
-          if(i == 2 || i == 3){
-            if (motor.getDir(_velocityVector[2]) == FORWARD)
+            // こうなるらしい
+            if (i == 0 || i == 3)
             {
-              _dir[i] = BACKWARD;
-            } else if (motor.getDir(_velocityVector[2]) == BACKWARD){
-              _dir[i] = FORWARD; 
-            } else {
-              _dir[i] = motor.getDir(_velocityVector[2]); 
+                if (motor.getDir(spinElement) == FORWARD)
+                {
+                    _dir[i] = BACKWARD;
+                }
+                else if (motor.getDir(spinElement) == BACKWARD)
+                {
+                    _dir[i] = FORWARD;
+                }
+                else
+                {
+                    _dir[i] = motor.getDir(spinElement);
+                }
             }
-          
-          }else{
-            _dir[i] = motor.getDir(_velocityVector[2]);
-          }  
-            _pwm[i] = abs(_velocityVector[2]);
+            else
+            {
+                _dir[i] = motor.getDir(spinElement);
+            }
+            _pwm[i] = abs(spinElement);
         }
     }
     else
     {
-        int theta = map(_velocityVector[2], -255, 255, -90, 90);
-        int coefficient = abs(map(_velocityVector[2], -255, 255, -90, 90));
+        // すべてゼロなら出力をブレーキに（角度はそのまま）
+        if(xElement == 0 && yElement == 0 && spinElement == 0)
+        {
+            for (int i = 0; i < 4; i++)
+                _pwm[i] = 0;
+            return;   
+        }
 
-        if (theta < 0)
-            theta = theta + 360;
+        int theta = map(spinElement, -255, 255, -90, 90);
+
+        // if (theta < 0)
+        //     theta = theta + 360;
 
         int power[4][2] = {0};
+
         //0
-        power[0][0] = _velocityVector[0] + coefficient * sin(coordinate.toRadian(theta));
-        power[0][1] = _velocityVector[1] - coefficient * cos(coordinate.toRadian(theta));
+        // power[0][0] = 0 - abs(theta * sin(coordinate.toRadian(theta)));
+        // power[0][1] = 0 + abs(theta * cos(coordinate.toRadian(theta)));
+
+        // //1
+        // power[1][0] = 0 - abs(theta * cos(coordinate.toRadian(theta)));
+        // power[1][1] = 0 - abs(theta * sin(coordinate.toRadian(theta)));
+
+        // //2
+        // power[2][0] = 0 + abs(theta * sin(coordinate.toRadian(theta)));
+        // power[2][1] = 0 - abs(theta * cos(coordinate.toRadian(theta)));
+
+        // //3
+        // power[3][0] = 0 + abs(theta * cos(coordinate.toRadian(theta)));
+        // power[3][1] = 0 + abs(theta * sin(coordinate.toRadian(theta)));
+
+        // //0
+        power[0][0] = xElement + theta * sin(coordinate.toRadian(theta));
+        power[0][1] = yElement - theta * cos(coordinate.toRadian(theta));
 
         //1
-        power[1][0] = _velocityVector[0] + coefficient * cos(coordinate.toRadian(theta));
-        power[1][1] = _velocityVector[1] + coefficient * sin(coordinate.toRadian(theta));
+        power[1][0] = xElement + theta * cos(coordinate.toRadian(theta));
+        power[1][1] = yElement + theta * sin(coordinate.toRadian(theta));
 
         //2
-        power[2][0] = _velocityVector[0] - coefficient * sin(coordinate.toRadian(theta));
-        power[2][1] = _velocityVector[1] + coefficient * sin(coordinate.toRadian(theta));
+        power[2][0] = xElement - theta * sin(coordinate.toRadian(theta));
+        power[2][1] = yElement + theta * cos(coordinate.toRadian(theta));
 
         //3
-        power[3][0] = _velocityVector[0] - coefficient * cos(coordinate.toRadian(theta));
-        power[3][1] = _velocityVector[1] - coefficient * sin(coordinate.toRadian(theta));
+        power[3][0] = xElement - theta * cos(coordinate.toRadian(theta));
+        power[3][1] = yElement - theta * sin(coordinate.toRadian(theta));
 
         bool isOverflowOfOutputRate = false;
         double maxPwm = 0;
