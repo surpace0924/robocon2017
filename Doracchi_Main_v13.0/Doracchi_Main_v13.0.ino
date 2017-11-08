@@ -5,53 +5,6 @@
 // @Version: 13.0
 // @Description: コントローラから受け取ったデータをメカナムプログラムに
 //    竿の展開を２つのスイッチの操作で展開させるようにした渡し、戻り値を送信用プログラムに受け渡す
-// @Update:
-//  10/28 Ver13.0
-//    メカナムではなく4輪ステアリングになった
-//  10/26 Ver12.0
-//    全国大会に向けてプログラムの設計を変更
-//    コントローラの回路を分離して通信で値を取得するようにした
-//  09/21 Ver11.0
-//    一晩でアームが変わった
-//    回転処理がいらなくなった
-//  09/20 Ver10.0
-//    竿の展開を２つのスイッチの操作で展開させるようにした
-//    アームの回転パラメータを変えた
-//  09/16 Ver9.0
-//    アームの回転パラメータを変えた
-//  09/05 Ver8.0
-//    アームの回転動作をMegaに統合
-//  08/28 Ver7.1
-//    不必要な処理を削除、リファクタリングを実施
-//  08/28 Ver7.0
-//    コントローラ追加
-//  08/25 Ver6.0
-//    自動移動モードを廃止
-//    コントローラ追加を見越してPropoのプログラムをクラス化
-//    プロポのキー配置を大幅変更
-//  08/22 Ver5.1
-//    プロポのキー配置を若干変更
-//    自動移動中の機構展開処理を実装
-//    処理の簡単化
-//  08/19 Ver5.0
-//    PS3コンのプログラムを廃止、プロポ専用に
-//    プロポのキー配置を大幅変更
-//  08/09 Ver4.0
-//    新型のクラスを正式採用
-//  07/23 Ver3.0
-//    新型のクラスを試作
-//  07/05 Ver2.0
-//    アームの駆動方式を変更
-//  06/26 Ver1.5
-//    自動加速モードを実装
-//  06/25 Ver1.4
-//    新型通信プログラムを開発
-//    従来の通信方式が使用できなくなった
-//  06/20 Ver1.3
-//    シリンダにPWMを加えることにした
-//    回路の変更に対応
-//    PROPO、PS3コンの切り替えをマクロの定義だけで変更できるようにした
-//
 // @TODO:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <math.h>
@@ -176,53 +129,20 @@ void calculate(int _velocityVector[3], int maxOutputRate, int _dir[4], int _pwm[
     }
     else
     {
-        // すべてゼロなら出力をブレーキに（角度はそのまま）
-        if(xElement == 0 && yElement == 0 && spinElement == 0)
-        {
-            for (int i = 0; i < 4; i++)
-                _pwm[i] = 0;
-            return;   
-        }
-
-        int theta = map(spinElement, -255, 255, -90, 90);
-
-        // if (theta < 0)
-        //     theta = theta + 360;
+        int angularVelocity = map(spinElement, -255, 255, -90, 90);
+        int sign = (angularVelocity < 0) ? -1 : 1;
 
         int power[4][2] = {0};
+        power[0][0] = xElement - sign * abs(angularVelocity * sin(coordinate.toRadian(angularVelocity)));
+        power[0][1] = yElement + sign * abs(angularVelocity * cos(coordinate.toRadian(angularVelocity)));
+        power[1][0] = xElement - sign * abs(angularVelocity * cos(coordinate.toRadian(angularVelocity)));
+        power[1][1] = yElement - sign * abs(angularVelocity * sin(coordinate.toRadian(angularVelocity)));
+        power[2][0] = xElement + sign * abs(angularVelocity * sin(coordinate.toRadian(angularVelocity)));
+        power[2][1] = yElement - sign * abs(angularVelocity * cos(coordinate.toRadian(angularVelocity)));
+        power[3][0] = xElement + sign * abs(angularVelocity * cos(coordinate.toRadian(angularVelocity)));
+        power[3][1] = yElement + sign * abs(angularVelocity * sin(coordinate.toRadian(angularVelocity)));
 
-        //0
-        // power[0][0] = 0 - abs(theta * sin(coordinate.toRadian(theta)));
-        // power[0][1] = 0 + abs(theta * cos(coordinate.toRadian(theta)));
-
-        // //1
-        // power[1][0] = 0 - abs(theta * cos(coordinate.toRadian(theta)));
-        // power[1][1] = 0 - abs(theta * sin(coordinate.toRadian(theta)));
-
-        // //2
-        // power[2][0] = 0 + abs(theta * sin(coordinate.toRadian(theta)));
-        // power[2][1] = 0 - abs(theta * cos(coordinate.toRadian(theta)));
-
-        // //3
-        // power[3][0] = 0 + abs(theta * cos(coordinate.toRadian(theta)));
-        // power[3][1] = 0 + abs(theta * sin(coordinate.toRadian(theta)));
-
-        // //0
-        power[0][0] = xElement + theta * sin(coordinate.toRadian(theta));
-        power[0][1] = yElement - theta * cos(coordinate.toRadian(theta));
-
-        //1
-        power[1][0] = xElement + theta * cos(coordinate.toRadian(theta));
-        power[1][1] = yElement + theta * sin(coordinate.toRadian(theta));
-
-        //2
-        power[2][0] = xElement - theta * sin(coordinate.toRadian(theta));
-        power[2][1] = yElement + theta * cos(coordinate.toRadian(theta));
-
-        //3
-        power[3][0] = xElement - theta * cos(coordinate.toRadian(theta));
-        power[3][1] = yElement - theta * sin(coordinate.toRadian(theta));
-
+        // 出力のガード
         bool isOverflowOfOutputRate = false;
         double maxPwm = 0;
         double bufPwm[4] = {0};
