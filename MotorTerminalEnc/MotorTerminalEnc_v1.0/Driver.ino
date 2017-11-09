@@ -33,7 +33,7 @@ void driveMotorOfFN(int dir, int output, int port)
     default:
         analogWrite(OUTPUT_PIN[port][0], 0);
         analogWrite(OUTPUT_PIN[port][1], 0);
-        digitalWrite(OUTPUT_PIN[port][2], HIGH);
+        digitalWrite(OUTPUT_PIN[port][2], LOW);
         break;
     }
 }

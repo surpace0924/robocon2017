@@ -27,13 +27,13 @@ void driveMotorOfFN()
             analogWrite(OUTPUT_PIN[i][j++], 0);
             analogWrite(OUTPUT_PIN[i][j++], constrain(pwm[USE_MOTOR[i]], 0, 250));
             break;
-        case BRK:
+        case FREE:
             digitalWrite(OUTPUT_PIN[i][j++], LOW);
             analogWrite(OUTPUT_PIN[i][j++], 0);
             analogWrite(OUTPUT_PIN[i][j++], 0);
             break;
         default:
-            digitalWrite(OUTPUT_PIN[i][j++], HIGH);
+            digitalWrite(OUTPUT_PIN[i][j++], LOW);
             analogWrite(OUTPUT_PIN[i][j++], 0);
             analogWrite(OUTPUT_PIN[i][j++], 0);
             break;
