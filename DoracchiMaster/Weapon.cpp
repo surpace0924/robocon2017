@@ -56,13 +56,11 @@ bool Arm::autoAttack(bool reset)
 void Arm::up()
 {
     digitalWrite(CYLINDER_PIN, HIGH);
-    digitalWrite(DEBUG_LED_PIN_LIST[2], HIGH);
 }
 
 void Arm::down()
 {
     digitalWrite(CYLINDER_PIN, LOW);
-    digitalWrite(DEBUG_LED_PIN_LIST[2], LOW);
 }
 
 
@@ -88,12 +86,10 @@ void Burst::lift(bool needs)
     if (needs)
     {
         digitalWrite(CYLINDER_PIN, HIGH);
-        digitalWrite(DEBUG_LED_PIN_LIST[3], HIGH);
     }
     else
     {
         digitalWrite(CYLINDER_PIN, LOW);
-        digitalWrite(DEBUG_LED_PIN_LIST[3], LOW);
     }
 }
 
@@ -102,12 +98,10 @@ void Burst::expand(bool needs)
     if (needs)
     {
         digitalWrite(CYLINDER_PIN, HIGH);
-        digitalWrite(DEBUG_LED_PIN_LIST[4], HIGH);
     }
     else
     {
         digitalWrite(CYLINDER_PIN, LOW);
-        digitalWrite(DEBUG_LED_PIN_LIST[4], LOW);
     }
 }
 

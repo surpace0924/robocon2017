@@ -1,6 +1,0 @@
-{
-    "board": "arduino:avr:nano",
-    "configuration": "cpu=atmega328",
-    "port": "COM10",
-    "sketch": "Doracchi_Main_v13.0\\Doracchi_Main_v13.0.ino"
-}

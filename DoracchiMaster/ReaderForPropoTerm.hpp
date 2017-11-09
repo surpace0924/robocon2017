@@ -14,8 +14,7 @@
 #define Port Serial2
 
 #include <Arduino.h>
-#include <math.h>
-#include "Config.hpp"
+#include "Universal.hpp"
 
 #ifdef ARDUINO_AVR_NANO
     #include <SoftwareSerial.h>

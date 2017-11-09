@@ -24,8 +24,7 @@
 #define TransceiverForMDTerminal
 
 #include <Arduino.h>
-#include <math.h>
-#include "Config.hpp"
+#include "Universal.hpp"
 
 
 // 回転方向系

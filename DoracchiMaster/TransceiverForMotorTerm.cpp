@@ -174,7 +174,7 @@ void Transceiver::confirmDataBySerialMonitor(int dir[], int pwm[])
             Serial.print("FORWARD");
         if (dir[motorNum] == BACKWARD)
             Serial.print("BACKWARD");
-        if (dir[motorNum] == BRK)
+        if (dir[motorNum] == BRAKE)
             Serial.print("BRK");
 
         Serial.print("  PWM:");

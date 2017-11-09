@@ -3,7 +3,6 @@
 #define _WEAPON_
 
 #include "Arduino.h"
-#include "Config.hpp"
 
 class Arm
 {
