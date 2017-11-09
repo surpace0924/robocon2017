@@ -104,25 +104,25 @@ void calculate(int _velocityVector[3], int maxOutputRate, int _dir[4], int _pwm[
         for (int i = 0; i < 4; i++)
         {
             // こうなるらしい
-            // if (i == 0 || i == 3)
-            // {
-            //     if (motor.getDir(spinElement) == FORWARD)
-            //     {
-            //         _dir[i] = BACKWARD;
-            //     }
-            //     else if (motor.getDir(spinElement) == BACKWARD)
-            //     {
-            //         _dir[i] = FORWARD;
-            //     }
-            //     else
-            //     {
-            //         _dir[i] = motor.getDir(spinElement);
-            //     }
-            // }
-            // else
-            // {
+            if (i == 0 || i == 3)
+            {
+                if (motor.getDir(spinElement) == FORWARD)
+                {
+                    _dir[i] = BACKWARD;
+                }
+                else if (motor.getDir(spinElement) == BACKWARD)
+                {
+                    _dir[i] = FORWARD;
+                }
+                else
+                {
+                    _dir[i] = motor.getDir(spinElement);
+                }
+            }
+            else
+            {
                 _dir[i] = motor.getDir(spinElement);
-            // }
+            }
             _pwm[i] = abs(spinElement);
         }
     }
