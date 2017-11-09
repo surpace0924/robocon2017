@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @Outline: モータターミナルを駆動させるためのプログラム
 // @Date: 2017/10/21
 // @Author: Ryoga Sato
@@ -12,10 +12,9 @@
 #include "settings.hpp"
 
 // 通信・時間管理
-#define SERIAL_TIMEOUT 2000
+#define SERIAL_TIMEOUT 20
 #define BAUNDRATE 57600
 #define DEADTIME 3 * 8
-#define OST 255
 
 // 出力管理
 #define FREE 0b00
@@ -23,18 +22,15 @@
 #define CCW 0b10
 #define BRK 0b11
 
-// 各パラメータ（要素は多めにとっておく）
-int rcvData[100];
-int type[16] = {0};
-int state[16] = {0};
-int pwm[16] = {0};
-int arg[16] = {0};
-
-
 // PIN管理
 #define ERROR_LED_PIN 13
 const int OUTPUT_PIN[2][4] = {{3, 6, 5, 7}, {9, 11, 10, 12}};
 
+// 各パラメータ（要素は多めにとっておく）
+int dir[10];
+int pwm[10];
+int rcvData[100];
+int len;
 
 void setup()
 {
@@ -58,16 +54,13 @@ void loop()
     {
         if (recieveData())
         {
+#ifdef FN
+            driveMotorOfFN();
+#endif
 
-            Serial.println(rcvData[1]);
-
-            // #ifdef FN
-//             driveMotorOfFN();
-// #endif
-
-// #ifndef FN
-//             driveMotorOfPN();
-// #endif
+#ifndef FN
+            driveMotorOfPN();
+#endif
 
             digitalWrite(ERROR_LED_PIN, LOW);
         }
@@ -75,9 +68,6 @@ void loop()
         {
             // データの受信が正しく行われていない場合はエラーLEDを点灯させる
             digitalWrite(ERROR_LED_PIN, HIGH);
-            Serial.println("!!!!!");
-            
-
         }
     }
 }

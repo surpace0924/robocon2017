@@ -25,8 +25,8 @@ Pid pid;
 #define CCW 0b10
 #define BRK 0b11
 
-#define KP 3.0
-#define KI 0
+#define KP 2.5
+#define KI 0.05
 #define KD 0
 
 // PIN管理
@@ -90,7 +90,12 @@ void loop()
 
             // 出力
             driveMotorOfFN(steerAngleDir, abs(output), 0);
-            driveMotorOfFN(dir[USE_MOTOR], pwm[USE_MOTOR], 1);
+
+            if (abs(output) < 50)
+                driveMotorOfFN(dir[USE_MOTOR], pwm[USE_MOTOR], 1);
+            else
+                driveMotorOfFN(BRK, pwm[USE_MOTOR], 1);
+            
 
             // デバッグ
             Serial.print(arg[USE_MOTOR]);
