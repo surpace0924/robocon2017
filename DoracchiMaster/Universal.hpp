@@ -22,8 +22,8 @@
 #define BACKWARD 2
 #define BRAKE 3
 
-#define directions(output) ((output >= 0)?(FORWARD):(BACKWARD))
-#define radiuses(x,y) (sqrt(x*x+y*y))
+#define directions(output) ((output==0)?(BRAKE):((output>0)?(FORWARD):(BACKWARD)))
+#define radiuses(x,y) (sqrt(((x)*(x))+((y)*(y))))
 #define angles(x,y) ((atan2(y,x)<0)?(degrees(atan2(y,x)+2*M_PI)):(degrees(atan2(y,x))))
 
 // int toDegree(double rad)

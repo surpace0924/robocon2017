@@ -21,7 +21,7 @@
 class Steering
 {
 public:
-    void calculate(int _velocityVector[3], int maxOutputRate, int _dir[4], int _pwm[4], int _arg[4]);
+    void calculate(int _velocityVector[3], int maxOutputRate, int _pwm[4], int _arg[4]);
 private:
 };
 

@@ -21,7 +21,7 @@
 class Mecanum
 {
 public:
-    void linearTransformation(int velocityVector[3], int maxOutputRate, int dir[4], int absOutputRate[4]);
+    void calculate(int velocityVector[3], int maxOutputRate, int absOutputRate[4]);
 private:
 };
 

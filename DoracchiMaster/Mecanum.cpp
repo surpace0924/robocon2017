@@ -13,7 +13,7 @@ double g_coefMatrix[4][3] = {{-1.0,  1.0, -0.85},
                              { 1.0, -1.0, -0.85},
                              { 1.0,  1.0, -0.85}};
 
-void Mecanum::linearTransformation(int velocityVector[3], int maxOutputRate, int dir[4], int absOutputRate[4])
+void Mecanum::calculate(int velocityVector[3], int maxOutputRate, int _pwm[4])
 {
     // 行列計算を簡単にするために配列（線形変換前のベクトル）に代入する
     int outputRate[4];
@@ -25,7 +25,7 @@ void Mecanum::linearTransformation(int velocityVector[3], int maxOutputRate, int
         double bufOutputRate[4] = {0};
 
         // 理論出力レート値が実際の範囲越えを起こしたかを格納するフラグ変数
-        bool isOverflowOfOutputRate = false;
+        bool isOverflowOfPwm = false;
 
         // 最大値を格納 [0-100]
         double MaxAbsOutputRate = 0;
@@ -43,35 +43,12 @@ void Mecanum::linearTransformation(int velocityVector[3], int maxOutputRate, int
 
             // いずれかのモータが出力倍率を超過していればフラグを立てる
             if (abs(bufOutputRate[motorNum]) > 100) {
-                isOverflowOfOutputRate = true;
+                isOverflowOfPwm = true;
             }
         }
 
         // 出力値の最終調整
-        // 1つでもモータが出力倍率を超過しているか？
-        if (isOverflowOfOutputRate == true) {
-            // 超過している
-            // 出力値を再調整しつつ出力用の配列に書きこむ
-            for (int motorNum = 0; motorNum < 4; motorNum++) {
-                outputRate[motorNum] = constrain((bufOutputRate[motorNum] * (100 / MaxAbsOutputRate)), -100, 100) * maxOutputRate / 100;
-            }
-        } else {
-            // 超過が存在しない
-            // すべて出力範囲内で収まっているためそのまま書き込む
-            for (int motorNum = 0; motorNum < 4; motorNum++) {
-                outputRate[motorNum] = bufOutputRate[motorNum] * maxOutputRate / 100;
-            }
-        }
-    }
-
-    // 別関数より回転方向を得て結果を代入する
-    // 出力比率を送信するときは符号が邪魔になるため消す
-    for (int motorNum = 0; motorNum < 4; motorNum++)
-    {
-        dir[motorNum] = directions(outputRate[motorNum]);
-        if (dir[motorNum] == BRAKE)
-            absOutputRate[motorNum] = 0;
-        else 
-            absOutputRate[motorNum] = abs(outputRate[motorNum]);
+        for (int motorNum = 0; motorNum < 4; motorNum++) 
+            _pwm[motorNum] = (isOverflowOfPwm == true) ? constrain((bufOutputRate[motorNum] * (100 / MaxAbsOutputRate)), -100, 100) * maxOutputRate / 100 : bufOutputRate[motorNum] * maxOutputRate / 100;   
     }
 }

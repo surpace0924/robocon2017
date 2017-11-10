@@ -33,11 +33,11 @@
 class Transceiver
 {
 public:
-    void sendDataForSteer(int dir[], int pwm[], int arg[], int usePort);
-    void confirmDataForSteerBySerialMonitor(int v[], int dir[], int pwm[], int arg[]);
-    void sendDataForMecanum(int dir[], int pwm[], int usePort);
+    void sendDataForSteer(int pwm[], int arg[], int usePort);
+    void confirmDataForSteerBySerialMonitor(int v[], int pwm[], int arg[]);
+    void sendDataForMecanum(int pwm[], int usePort);
     void confirmDataBySerialMonitor(int dir[], int pwm[]);
-    void confirmDataBySerialPlotter(int dir[], int pwm[]);
+    void confirmDataBySerialPlotter(int pwm[]);
 
 private:
 };

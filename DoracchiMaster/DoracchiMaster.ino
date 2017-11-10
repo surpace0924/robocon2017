@@ -26,6 +26,7 @@ Transceiver tx;
 Arm arm;
 Burst burst;
 
+
 void setup()
 {
     pinMode(arm.CYLINDER_PIN, OUTPUT);
@@ -52,7 +53,7 @@ void loop()
         burst.controlBySW(propo.getSwitchVal(3), propo.getSwitchVal(4));
 
         // ステアを駆動させて警告
-        driveSteer();
+        move();
     }
     else
     {
@@ -60,10 +61,9 @@ void loop()
     }
 }
 
-bool driveSteer()
+void move()
 {
     // 出力値を格納
-    int dir[4] = {0};
     int pwm[4] = {0};
     static int arg[4] = {0};
 
@@ -73,16 +73,14 @@ bool driveSteer()
         velocityVector[i] = (abs(propo.getStickVal(i)) < STICK_TH) ? 0 : propo.getStickVal(i);
 
     // 計算
-    steer.calculate(velocityVector, 250, dir, pwm, arg);
+    // steer.calculate(velocityVector, 250, pwm, arg);
+    mcnum.calculate(velocityVector, 250, pwm);
 
     // 移動データを送信
     // tx.sendDataForSteer(dir, pwm, arg, 0);
-    tx.sendDataForSteer(dir, pwm, arg, 1);
-    tx.confirmDataForSteerBySerialMonitor(velocityVector, dir, pwm, arg);
+    tx.sendDataForSteer(pwm, arg, 1);
+    tx.sendDataForMecanum(pwm, 1);
+    // tx.confirmDataBySerialPlotter(pwm);
+    // tx.confirmDataForSteerBySerialMonitor(velocityVector, pwm, arg);
 
-    for (int i = 0; i < 4; i++)
-        if ((dir[i] != BRAKE) && (pwm[i] > 0))
-            return true;
-
-    return false;
 }

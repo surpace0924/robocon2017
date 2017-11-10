@@ -3,7 +3,7 @@
 // @Date: 2017/10/28
 // @Author: Ryoga Sato
 // @Version: 4.0
-// @Description: 
+// @Description:
 // 送信用のPIN配置は[TX, RX, GND]
 // @Update:
 //  11/01 Ver4.0
@@ -32,7 +32,7 @@ int pwm[]: PWM出力[0-100]
 int usePort: 送信に使用するポート 0→Serial, 1→Serial1, 2→Serial2
 @return
 **/
-void Transceiver::sendDataForSteer(int dir[], int pwm[], int arg[], int usePort)
+void Transceiver::sendDataForSteer(int pwm[], int arg[], int usePort)
 {
     unsigned char packet[15] = {0}; // 送信データ（パケット）
     int sum = 0;
@@ -40,19 +40,24 @@ void Transceiver::sendDataForSteer(int dir[], int pwm[], int arg[], int usePort)
 
     int motorNum = 4;
 
-    packet[0] = 255;  // スタートバイト
-    packet[1] = 12;    // データのバイト長
+
+    packet[0] = 255; // スタートバイト
+    packet[1] = 12;  // データのバイト長
 
     i = 2;
     j = 0;
-    while(i <= 8) {
-        packet[i++] = dir[j];
-        packet[i++] = pwm[j++];
+    while (i <= 8)
+    {
+        packet[i++] = directions(pwm[j]);
+        packet[i++] = abs(pwm[j++]);
     }
     
+    Serial.print(abs(pwm[0]));
+    Serial.println(packet[3]);
+
     for (int i = 0; i < 4; i++)
     {
-        packet[i+10] = arg[i];
+        packet[i + 10] = arg[i];
     }
 
     // チェックサムの計算
@@ -66,7 +71,8 @@ void Transceiver::sendDataForSteer(int dir[], int pwm[], int arg[], int usePort)
     // Serial.print(" ");
     // Serial.println(packet[14]);
 
-    for (i = 0; i <= 14; i++) {
+    for (i = 0; i <= 14; i++)
+    {
         // ポート別に送信
         if (usePort == 0)
         {
@@ -85,11 +91,8 @@ void Transceiver::sendDataForSteer(int dir[], int pwm[], int arg[], int usePort)
     // Serial.println();
 }
 
-void Transceiver::confirmDataForSteerBySerialMonitor(int v[], int dir[], int pwm[], int arg[])
+void Transceiver::confirmDataForSteerBySerialMonitor(int v[], int pwm[], int arg[])
 {
-    for (int i = 0; i < 4; i++)
-        pwm[i] = (dir[i] == BACKWARD) ? -1*pwm[i] : pwm[i];
-
     for (int i = 0; i < 3; i++)
     {
         Serial.print(v[i]);
@@ -107,7 +110,7 @@ void Transceiver::confirmDataForSteerBySerialMonitor(int v[], int dir[], int pwm
     Serial.print("\r");
 }
 
-void Transceiver::sendDataForMecanum(int dir[], int pwm[], int usePort)
+void Transceiver::sendDataForMecanum(int pwm[], int usePort)
 {
     unsigned char packet[20] = {0}; // 送信データ（パケット）
     int sum = 0;
@@ -115,28 +118,29 @@ void Transceiver::sendDataForMecanum(int dir[], int pwm[], int usePort)
 
     int motorNum = 4;
 
-    packet[0] = 255;  // スタートバイト
-    packet[1] = motorNum*2;    // データのバイト長
+    packet[0] = 255;          // スタートバイト
+    packet[1] = motorNum * 2; // データのバイト長
 
     i = 2;
     j = 0;
-    while(i <= motorNum*2) {
-        packet[i++] = dir[j];
+    while (i <= motorNum * 2)
+    {
+        packet[i++] = directions(pwm[j]);
         packet[i++] = abs(pwm[j++]);
     }
 
     // チェックサムの計算
-    for (i = 2; i <= motorNum*motorNum+1; i++)
+    for (i = 2; i <= motorNum * motorNum + 1; i++)
         sum ^= packet[i];
 
     // チェックサムが255にならないようにする
     if (sum != 255)
-        packet[motorNum*2+2] = sum;
+        packet[motorNum * 2 + 2] = sum;
     else
-        packet[motorNum*2+2] = LIMIT;
+        packet[motorNum * 2 + 2] = LIMIT;
 
-
-    for (i = 0; i <= motorNum*2+2; i++) {
+    for (i = 0; i <= motorNum * 2 + 2; i++)
+    {
         // ポート別に送信
         if (usePort == 0)
         {
@@ -153,38 +157,6 @@ void Transceiver::sendDataForMecanum(int dir[], int pwm[], int usePort)
     }
 }
 
-
-/**
-送信するデータをシリアルモニターから確認
-@since 2.0.0
-@param
-int dir[]: 方向
-int pwm[]: PWM出力[0-100]
-@return
-**/
-void Transceiver::confirmDataBySerialMonitor(int dir[], int pwm[])
-{
-    for (int motorNum = 0; motorNum <= 3; motorNum++) {
-        Serial.print(motorNum);
-        Serial.print(" DIR:");
-        
-        if (dir[motorNum] == FREE)
-            Serial.print("FREE");
-        if (dir[motorNum] == FORWARD)
-            Serial.print("FORWARD");
-        if (dir[motorNum] == BACKWARD)
-            Serial.print("BACKWARD");
-        if (dir[motorNum] == BRAKE)
-            Serial.print("BRK");
-
-        Serial.print("  PWM:");
-        Serial.print(pwm[motorNum]);
-        Serial.print("   ");
-    }
-    Serial.print("\n");
-}
-
-
 /**
 送信するデータをシリアルプロッタから確認
 @since 2.0.0
@@ -193,16 +165,12 @@ int dir[]: 方向
 int pwm[]: PWM出力[0-100]
 @return
 **/
-void Transceiver::confirmDataBySerialPlotter(int dir[], int pwm[])
+void Transceiver::confirmDataBySerialPlotter(int pwm[])
 {
-    for (int motorNum = 0; motorNum <= 3; motorNum++) {
-        if (dir[motorNum] == BACKWARD)
-            Serial.print(-1*pwm[motorNum]);
-        else
-            Serial.print(pwm[motorNum]);
-        
-        if (motorNum != 3)
-            Serial.print(",");
+    for (int i = 0; i < 4; i++)
+    {
+        Serial.print(pwm[i]);
+        Serial.print(" ");
     }
-    Serial.print("\n");
+    Serial.println();
 }
