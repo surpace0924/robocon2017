@@ -1,9 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @Outline: メカナムホイールの出力値を計算する
-// @Author: Ryoga Sato
-// @Description: 
-// 行列を用いた計算を行い、なめらかな移動を実現する
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Steering.hpp"
 
 void Steering::calculate(int _velocityVector[3], int maxOutputRate, int _pwm[4], int _arg[4])
@@ -51,13 +45,13 @@ void Steering::calculate(int _velocityVector[3], int maxOutputRate, int _pwm[4],
             maxPwm = (bufPwm[i] > maxPwm) ? bufPwm[i] : maxPwm;
 
             // いずれかのモータが出力倍率を超過していればフラグを立てる
-            if (bufPwm[i] > 250)
+            if (bufPwm[i] > maxOutputRate)
                 isOverflowOfPwm = true;
         }
 
         for (int i = 0; i < 4; i++) 
         {
-            _pwm[i] = (isOverflowOfPwm) ? map(bufPwm[i], 0, maxPwm, 0, 250) : bufPwm[i];
+            _pwm[i] = (isOverflowOfPwm) ? map(bufPwm[i], 0, maxPwm, 0, maxOutputRate) : bufPwm[i];
             _pwm[i] = (angles(power[i][0], power[i][1]) < 180) ? _pwm[i] : -1*_pwm[i];
         }
     }

@@ -1,11 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @Outline: どらっち用の統括処理
-// @Date:
 // @Author: Ryoga Sato
-// @Version: 13.0
-// @Description: コントローラから受け取ったデータをメカナムプログラムに
-//    竿の展開を２つのスイッチの操作で展開させるようにした渡し、戻り値を送信用プログラムに受け渡す
-// @TODO:
+// @Description:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Universal.hpp"
 #include "Config.hpp"
@@ -23,19 +19,14 @@ Reader propo;
 Transceiver tx;
 
 #include "Weapon.hpp"
-Arm arm;
-Burst burst;
-
+Arm arm(ARM_CYLINDER_PIN);
+Burst burst(BURST_CYLINDER_PIN, BURST_ROD_PIN);
 
 void setup()
 {
-    pinMode(arm.CYLINDER_PIN, OUTPUT);
-    pinMode(burst.CYLINDER_PIN, OUTPUT);
-    pinMode(burst.ROD_PIN, OUTPUT);
-
-
-    for (int i = 0; i < 6; i++)
-        pinMode(DEBUG_LED_PIN_LIST[i], OUTPUT);
+    pinMode(ARM_CYLINDER_PIN, OUTPUT);
+    pinMode(BURST_CYLINDER_PIN, OUTPUT);
+    pinMode(BURST_ROD_PIN, OUTPUT);
 
     Serial.begin(BAUDRATE);
     Serial1.begin(BAUDRATE);
@@ -70,17 +61,21 @@ void move()
     // スティックの値を速度ベクトルに代入
     int velocityVector[3];
     for (int i = 0; i < 3; i++)
-        velocityVector[i] = (abs(propo.getStickVal(i)) < STICK_TH) ? 0 : propo.getStickVal(i);
+        velocityVector[i] = (abs(propo.getStickVal(i)) > STICK_TH) ? propo.getStickVal(i) : 0;
 
-    // 計算
-    // steer.calculate(velocityVector, 250, pwm, arg);
-    mcnum.calculate(velocityVector, 250, pwm);
+#ifndef _USE_STEERING_
+#ifdef _USE_MECANUM_
+    mcnum.calculate(velocityVector, MT_MAXPOWER, pwm);
+    tx.sendData(pwm, MOVE_SERIALPORT);
+    tx.confirmData(velocityVector, pwm);
+#endif
+#endif
 
-    // 移動データを送信
-    // tx.sendDataForSteer(dir, pwm, arg, 0);
-    tx.sendDataForSteer(pwm, arg, 1);
-    tx.sendDataForMecanum(pwm, 1);
-    // tx.confirmDataBySerialPlotter(pwm);
-    // tx.confirmDataForSteerBySerialMonitor(velocityVector, pwm, arg);
-
+#ifndef _USE_MECANUM_
+#ifdef _USE_STEERING_
+    steer.calculate(velocityVector, MT_MAXPOWER, pwm, arg);
+    tx.sendData(pwm, arg, MOVE_SERIALPORT);
+    tx.confirmData(velocityVector, pwm, arg);
+#endif
+#endif
 }

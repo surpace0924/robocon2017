@@ -1,4 +1,9 @@
-/*アームの処理*/
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// @Outline: どらっち専用の攻撃機構駆動処理
+// @Author: Ryoga Sato
+// @Description: 
+//  どらっち以外は削除してOK
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef _WEAPON_
 #define _WEAPON_
 
@@ -7,10 +12,11 @@
 class Arm
 {
 public:
-    static const int CYLINDER_PIN = A8;
+    Arm(int pin);
     void controlBySW(int SWVal1, int SWVal2);
     bool isAttacked;
 private:
+    int CYLINDER_PIN;
     bool autoAttack(bool reset);
     void down();
     void up();
@@ -19,10 +25,11 @@ private:
 class Burst
 {
 public:
-    static const int CYLINDER_PIN = A9;
-    static const int ROD_PIN = A10;
+    Burst(int cylinderPin, int rodPin);
     void controlBySW(int cylinderSW, int rodSW);
 private:
+    int CYLINDER_PIN;
+    int ROD_PIN;
     void lift(bool needs);
     void expand(bool needs);
 };
