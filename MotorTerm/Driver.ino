@@ -1,83 +1,81 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @Outline: 出力処理
-// @Date: 2017/10/21
-// @Author: Ryoga Sato
-// @Version: 1.0
-// @Description: 
-// ボーレートは57600bps
-// @Update:
-// @TODO:
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// フルNドライバ用
-void driveMotorOfFN()
+#ifndef _USE_PN_
+#ifdef _USE_FN_
+// フルN
+void driveMotor(int _dir[], int _pwm[])
 {
     int i, j = 0;
     for (i = 0; i < 2; i++)
     {
-        switch (dir[USE_MOTOR[i]])
+        switch (_dir[i])
         {
-        case CW:
-            digitalWrite(OUTPUT_PIN[i][j++], LOW);
-            analogWrite(OUTPUT_PIN[i][j++], constrain(pwm[USE_MOTOR[i]], 0, 250));
-            analogWrite(OUTPUT_PIN[i][j++], 0);
-            break;
-        case CCW:
-            digitalWrite(OUTPUT_PIN[i][j++], LOW);
-            analogWrite(OUTPUT_PIN[i][j++], 0);
-            analogWrite(OUTPUT_PIN[i][j++], constrain(pwm[USE_MOTOR[i]], 0, 250));
-            break;
         case FREE:
+            digitalWrite(OUTPUT_PIN[i][j++], HIGH);
+            analogWrite(OUTPUT_PIN[i][j++], 0);
+            analogWrite(OUTPUT_PIN[i][j++], 0);
+            digitalWrite(OUTPUT_PIN[i][j++], HIGH);
+            break;
+        case FORWARD:
+            digitalWrite(OUTPUT_PIN[i][j++], LOW);
+            analogWrite(OUTPUT_PIN[i][j++], _pwm[i]);
+            analogWrite(OUTPUT_PIN[i][j++], 0);
+            digitalWrite(OUTPUT_PIN[i][j++], LOW);
+            break;
+        case BACKWARD:
             digitalWrite(OUTPUT_PIN[i][j++], LOW);
             analogWrite(OUTPUT_PIN[i][j++], 0);
-            analogWrite(OUTPUT_PIN[i][j++], 0);
+            analogWrite(OUTPUT_PIN[i][j++], _pwm[i]);
+            digitalWrite(OUTPUT_PIN[i][j++], LOW);
             break;
         default:
             digitalWrite(OUTPUT_PIN[i][j++], LOW);
             analogWrite(OUTPUT_PIN[i][j++], 0);
             analogWrite(OUTPUT_PIN[i][j++], 0);
+            digitalWrite(OUTPUT_PIN[i][j++], LOW);
             break;
         }
         j = 0;
     }
 }
+#endif
+#endif
 
-
-// PN混合driver用
-void driveMotorOfPN()
+#ifndef _USE_FN_
+#ifdef _USE_PN_
+void driveMotor(int _dir[], int _pwm[])
 {
     // デッドタイム処理
-    static int lastDir[2] = {BRK};
+    static int lastDir[2] = {BRAKE};
     for (int i = 0; i < 2; i++)
     {
-        if (lastDir[i] != dir[USE_MOTOR[i]])
+        if (lastDir[i] != _dir[i])
         {
             for (int j = 0; j < 2; j++)
-                for(int k = 0; k < 4; k++)
-                    digitalWrite(OUTPUT_PIN[i][j++], LOW);
+                for (int k = 0; k < 4; k++)
+                    digitalWrite(OUTPUT_PIN[j][k], LOW);
             delay(DEADTIME);
         }
-        lastDir[i] = dir[USE_MOTOR[i]];
+        lastDir[i] = _dir[i];
     }
+
 
     int i, j = 0;
     for (i = 0; i < 2; i++)
     {
         switch (dir[USE_MOTOR[i]])
         {
-        case CW:
+        case FORWARD:
             analogWrite(OUTPUT_PIN[i][j++], pwm[USE_MOTOR[i]]);
             digitalWrite(OUTPUT_PIN[i][j++], HIGH);
             analogWrite(OUTPUT_PIN[i][j++], 0);
             digitalWrite(OUTPUT_PIN[i][j++], LOW);
             break;
-        case CCW:
+        case BACKWARD:
             analogWrite(OUTPUT_PIN[i][j++], 0);
             digitalWrite(OUTPUT_PIN[i][j++], LOW);
             analogWrite(OUTPUT_PIN[i][j++], pwm[USE_MOTOR[i]]);
             digitalWrite(OUTPUT_PIN[i][j++], HIGH);
             break;
-        case BRK:
+        case BRAKE:
             analogWrite(OUTPUT_PIN[i][j++], 255);
             digitalWrite(OUTPUT_PIN[i][j++], LOW);
             analogWrite(OUTPUT_PIN[i][j++], 255);
@@ -93,4 +91,5 @@ void driveMotorOfPN()
         j = 0;
     }
 }
-
+#endif
+#endif
