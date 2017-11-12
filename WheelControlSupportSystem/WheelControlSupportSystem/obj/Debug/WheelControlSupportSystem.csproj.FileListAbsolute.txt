@@ -18,3 +18,13 @@ F:\_Main\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelCont
 F:\_Main\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.csproj.CoreCompileInputs.cache
 F:\_Main\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.exe
 F:\_Main\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.pdb
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\bin\Debug\WheelControlSupportSystem.exe.config
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\bin\Debug\WheelControlSupportSystem.exe
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\bin\Debug\WheelControlSupportSystem.pdb
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.csprojResolveAssemblyReference.cache
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.Form1.resources
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.Properties.Resources.resources
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.csproj.GenerateResource.Cache
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.csproj.CoreCompileInputs.cache
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.exe
+C:\Users\ryoga\Documents\GitHub\robocon2017\WheelControlSupportSystem\WheelControlSupportSystem\obj\Debug\WheelControlSupportSystem.pdb

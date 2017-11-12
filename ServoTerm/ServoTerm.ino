@@ -28,9 +28,9 @@ void loop()
 {
     if (recieveData())
     {
-        servo0.write(0); 
-        servo1.write(90); 
-        servo2.write(185); 
+        servo0.write(arg[3]); 
+        servo1.write(arg[3]); 
+        servo2.write(arg[3]); 
         servo3.write(arg[3]); 
     }
 }

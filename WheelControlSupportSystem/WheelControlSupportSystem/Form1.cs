@@ -135,7 +135,7 @@ namespace WheelControlSupportSystem
 					this.serialPort1.StopBits = System.IO.Ports.StopBits.One;
 					this.serialPort1.Handshake = System.IO.Ports.Handshake.RequestToSend;
 					this.serialPort1.Encoding = Encoding.UTF8;
-					this.serialPort1.NewLine = "\r";
+					this.serialPort1.NewLine = "\n";
 					serialPort1.Open();
 				}
 			}

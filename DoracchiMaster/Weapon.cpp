@@ -1,5 +1,9 @@
-/*アームの処理*/
 #include "Weapon.hpp"
+
+Arm::Arm(int pin)
+{
+    CYLINDER_PIN = pin;
+}
 
 void Arm::controlBySW(int SWVal1, int SWVal2)
 {
@@ -15,10 +19,13 @@ void Arm::controlBySW(int SWVal1, int SWVal2)
     static bool needsComeback = false;
     if (canMove)
     {
-        if (needsAutoAttack || needsComeback) {
+        if (needsAutoAttack || needsComeback)
+        {
             needsComeback = autoAttack(needsReturnArm);
             needsReturnArm = false;
-        } else {
+        }
+        else
+        {
             up();
             needsReturnArm = true;
         }
@@ -38,10 +45,13 @@ bool Arm::autoAttack(bool reset)
     _reset = reset;
     static unsigned long startTime = millis();
 
-    if(reset) startTime = millis();
+    if (reset)
+        startTime = millis();
 
-    if (millis() - startTime < 1000) down();
-    else if (millis() - startTime < 2000) up();        
+    if (millis() - startTime < 1000)
+        down();
+    else if (millis() - startTime < 2000)
+        up();
     else
     {
         // 一連の処理が終了
@@ -56,19 +66,22 @@ bool Arm::autoAttack(bool reset)
 void Arm::up()
 {
     digitalWrite(CYLINDER_PIN, HIGH);
-    digitalWrite(DEBUG_LED_PIN_LIST[2], HIGH);
 }
 
 void Arm::down()
 {
     digitalWrite(CYLINDER_PIN, LOW);
-    digitalWrite(DEBUG_LED_PIN_LIST[2], LOW);
 }
 
+Burst::Burst(int cylinderPin, int rodPin)
+{
+    CYLINDER_PIN = cylinderPin;
+    ROD_PIN = rodPin;
+}
 
 void Burst::controlBySW(int cylinderSW, int rodSW)
 {
-    if (cylinderSW == 2) 
+    if (cylinderSW == 2)
     {
         lift(true);
         if (rodSW == 2)
@@ -88,26 +101,21 @@ void Burst::lift(bool needs)
     if (needs)
     {
         digitalWrite(CYLINDER_PIN, HIGH);
-        digitalWrite(DEBUG_LED_PIN_LIST[3], HIGH);
     }
     else
     {
         digitalWrite(CYLINDER_PIN, LOW);
-        digitalWrite(DEBUG_LED_PIN_LIST[3], LOW);
     }
 }
 
 void Burst::expand(bool needs)
-{    
+{
     if (needs)
     {
-        digitalWrite(CYLINDER_PIN, HIGH);
-        digitalWrite(DEBUG_LED_PIN_LIST[4], HIGH);
+        digitalWrite(ROD_PIN, HIGH);
     }
     else
     {
-        digitalWrite(CYLINDER_PIN, LOW);
-        digitalWrite(DEBUG_LED_PIN_LIST[4], LOW);
+        digitalWrite(ROD_PIN, LOW);
     }
 }
-

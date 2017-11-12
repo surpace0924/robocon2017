@@ -1,35 +1,32 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @Outline: 定数や構造体型をまとめて定義するヘッダ
-// @Date: 2017/08/09
 // @Author: Ryoga Sato
-// @Version: 4.0.0
-// @Description: 
-// @Update:
-// @TODO:
+// @Description:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef Config
-#define Config
+#ifndef _CONFIG_
+#define _CONFIG_
 
-#define MC_MAXPOWER 255
-
-// スティックの操作を受け付ける閾値
-#define STICK_TH 20
-
-
-const int BUZZER_PIN_LIST[3] = {49, 51, 53};
-
-// デバッグ用LEDのPIN番号
-const int DEBUG_LED_PIN_LIST[6] = {27, 23, 33, 37, 41, 45};
+// 移動機構の選択（使用する方のコメントアウトを外す、両方外すと動かない）
+// #define _USE_MECANUM_
+#define _USE_STEERING_
 
 // シリアル通信のボーレート
 #define BAUDRATE 57600
 
-// 回転方向系
-static const int FREE = 0b00;
-static const int FORWARD   = 0b01;
-static const int BACKWARD  = 0b10;
-static const int BRK  = 0b11;
+// 移動に使用するシリアルポート（0~3）
+#define MOVE_SERIALPORT 1
 
+// スティックの操作を受け付ける閾値
+#define STICK_TH 20
 
-#endif // Config
+// 攻撃機構に対応しているピン
+#define ARM_CYLINDER_PIN A8
+#define BURST_CYLINDER_PIN A9
+#define BURST_ROD_PIN A10
+
+// モータの最大出力
+#define MT_MAXPOWER 250
+
+#pragma once
+#endif
