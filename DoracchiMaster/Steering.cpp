@@ -5,13 +5,13 @@ void Steering::calculate(int _velocityVector[3], int maxOutputRate, int _pwm[4],
     int xElement = _velocityVector[0];
     int yElement = _velocityVector[1];
     int spinElement = _velocityVector[2];
-    if (xElement == 0 && yElement == 0 && spinElement != 0)
+    if (xElement == 0 && yElement == 0)
     {
         // 旋回成分のみ;
         _arg[0] = 145;
-        _arg[1] = 55;
+        _arg[1] = 35;
         _arg[2] = 145;
-        _arg[3] = 55;
+        _arg[3] = 35;
 
         for (int i = 0; i < 4; i++)
             _pwm[i] = (i == 0 || i == 3) ? -1*spinElement : spinElement;

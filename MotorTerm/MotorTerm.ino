@@ -5,10 +5,13 @@
 // フルN、PN混合両方のMDを駆動できる
 // settings.hpp以外のファイルは書き換え禁止！！！！
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#include "settings.hpp"
+#include "Config.hpp"
 #include "Universal.hpp"
 
-#include "StdPid.hpp"
+#include "Potentiometer.hpp"
+Potentiometer potentio;
+
+#include "Pid.hpp"
 Pid pid;
 
 // 通信・時間管理
@@ -22,7 +25,6 @@ Pid pid;
 
 // PIN管理
 #define ERROR_LED_PIN 13
-
 const int OUTPUT_PIN[2][4] = {{3, 6, 5, 7}, {9, 11, 10, 12}};
 
 // 各パラメータ（要素は多めにとっておく）
@@ -45,9 +47,15 @@ void setup()
         for (int j = 0; j < 4; j++)
             pinMode(OUTPUT_PIN[i][j], OUTPUT);
 
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 4; j++)
+            digitalWrite(OUTPUT_PIN[i][j], LOW);
+
     pinMode(ERROR_LED_PIN, OUTPUT);
     
-#ifdef _USE_STEERING_
+    potentio.init(0, 270);
+
+#ifdef _USE_POTENTIOMETER_
 #ifdef _USE_FN_
         initEncoder();  
 #endif
@@ -60,13 +68,25 @@ void loop()
     {
         if (recieveData())
         {
-#ifdef _USE_STEERING_
-#ifdef _USE_FN_
-            controlDriverForSteering();
-#endif
+            int angle = 0;
+#ifdef _USE_POTENTIOMETER_
+            angle = -1*potentio.getRelativeAngle();
 #else
-            controlDriver();
+#ifdef _USE_ENCODER_
+            angle = getAngle() / 2;
 #endif
+#endif
+
+#ifdef _USE_STEERING_
+            //ステアリングを使用 
+            controlDriverForSteering(angle);
+#else
+#ifdef _USE_MECANUM_
+            // メカナムを使用
+            controlDriverForMecanum();
+#endif
+#endif
+            Serial.println(angle);
         }
         else
         {
@@ -75,15 +95,12 @@ void loop()
     }
 }
 
-#ifdef _USE_STEERING_
-#ifdef _USE_FN_
-void controlDriverForSteering()
+// ステア用
+void controlDriverForSteering(int nowAngle)
 {
-    int nowAngle = getAngle() / 2;
-
     // 第1象限と第4象限のみ使用（-90~90[deg]）
     int targetAngle = (arg[USE_MOTOR[0]] > 90) ? arg[USE_MOTOR[0]] - 180 : arg[USE_MOTOR[0]];
-    int output = pid.calculate(targetAngle, nowAngle, KP, KI, 0, 250);
+    int output = pid.calculate(targetAngle, nowAngle, KP, KI, KD, 250);
 
     if (arg[USE_MOTOR[0]] > 90)
     {
@@ -105,10 +122,8 @@ void controlDriverForSteering()
     driveMotor(outputDir, outputPwm);
 }
 
-#endif
-#else
-
-void controlDriver()
+// メカナム用
+void controlDriverForMecanum()
 {
     int outputDir[2];
     int outputPwm[2];
@@ -119,4 +134,3 @@ void controlDriver()
 
     driveMotor(outputDir, outputPwm);
 }
-#endif
