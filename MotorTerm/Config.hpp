@@ -8,14 +8,14 @@
 #ifndef _CONFIG_
 #define _CONFIG_
 // 使用するモータの番号を入力（ステアの場合は先頭の要素を使用）
-const int USE_MOTOR[2] = {2, 3};
+const int USE_MOTOR[2] = {0, 1};
 
 // 使用する機構
 // #define _USE_MECANUM_
 #define _USE_STEERING_
 
 // 使用するセンサ
-#define _USE_POTENTIOMETER_
+//#define _USE_POTENTIOMETER_
 // #define _USE_ENCODER_
 
 #endif

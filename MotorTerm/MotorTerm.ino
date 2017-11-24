@@ -19,8 +19,8 @@ Pid pid;
 #define BAUNDRATE 57600
 #define DEADTIME 3 * 8
 
-#define KP 2.5
-#define KI 0.05
+#define KP 1.65
+#define KI 0
 #define KD 0
 
 // PIN管理
@@ -102,7 +102,7 @@ void controlDriverForSteering(int nowAngle)
     int targetAngle = (arg[USE_MOTOR[0]] > 90) ? arg[USE_MOTOR[0]] - 180 : arg[USE_MOTOR[0]];
     int output = pid.calculate(targetAngle, nowAngle, KP, KI, KD, 250);
 
-    if (arg[USE_MOTOR[0]] > 90)
+    if (arg[USE_MOTOR[0]] >= 90)
     {
         if (dir[USE_MOTOR[0]] == FORWARD)
             dir[USE_MOTOR[0]] = BACKWARD;
@@ -111,13 +111,26 @@ void controlDriverForSteering(int nowAngle)
         else
             dir[USE_MOTOR[0]] = BRAKE;
     }
+    if (arg[USE_MOTOR[1]] >= 90)
+    {
+        if (dir[USE_MOTOR[1]] == FORWARD)
+            dir[USE_MOTOR[1]] = BACKWARD;
+        else if (dir[USE_MOTOR[1]] == BACKWARD)
+            dir[USE_MOTOR[1]] = FORWARD;
+        else
+            dir[USE_MOTOR[1]] = BRAKE;
+    }
 
     int outputDir[2];
     int outputPwm[2];
-    outputDir[0] = directions(output);
-    outputPwm[0] = abs(output);
-    outputDir[1] = (abs(output) < 50) ? dir[USE_MOTOR[0]] : BRAKE;
-    outputPwm[1] = pwm[USE_MOTOR[0]];
+    outputDir[0] = dir[USE_MOTOR[0]];
+    outputPwm[0] = pwm[USE_MOTOR[0]];
+    outputDir[1] = dir[USE_MOTOR[1]];
+    outputPwm[1] = pwm[USE_MOTOR[1]];
+//    outputDir[0] = directions(output);
+//    outputPwm[0] = abs(output);
+//    outputDir[1] = (abs(output) < 50) ? dir[USE_MOTOR[0]] : BRAKE;
+//    outputPwm[1] = pwm[USE_MOTOR[0]];
 
     driveMotor(outputDir, outputPwm);
 }
