@@ -3,21 +3,6 @@
 // @Author: Ryoga Sato
 // @Description:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#include <MsTimer2.h>
-
-static int arg[4] = {0};
-volatile int pastAngle[4] = {0};
-
-void timer() {
-    for(int i = 0; i < 4; i++) 
-    {
-        pastAngle[i] = arg[i];
-
-    Serial.println(pastAngle[0]);
-    }
-}
-
-
 #include "Universal.hpp"
 #include "Config.hpp"
 
@@ -39,9 +24,6 @@ Burst burst(BURST_CYLINDER_PIN, BURST_ROD_PIN);
 
 void setup()
 {
-    MsTimer2::set(500, timer);
-    MsTimer2::start();
-
     pinMode(ARM_CYLINDER_PIN, OUTPUT);
     pinMode(BURST_CYLINDER_PIN, OUTPUT);
     pinMode(BURST_ROD_PIN, OUTPUT);
@@ -70,15 +52,26 @@ void loop()
     }
 }
 
+
+int arg[4] = {0};
 void move()
 {
     // 出力値を格納
     int pwm[4] = {0};
-    
+
     // スティックの値を速度ベクトルに代入
     int velocityVector[3];
-    for (int i = 0; i < 3; i++)
-        velocityVector[i] = (abs(propo.getStickVal(i)) > STICK_TH) ? 1.3*propo.getStickVal(i) : 0;
+    if(propo.getSwitchVal(0) == 2) 
+    {
+        for (int i = 0; i < 3; i++)
+            velocityVector[i] = (abs(propo.getStickVal(i)) > STICK_TH) ? STICK_CORRECTION_FACTOR*propo.getStickVal(i) : 0;
+    }
+    else
+    {
+        velocityVector[0] = (abs(propo.getStickVal(0)) > STICK_TH) ? -1*STICK_CORRECTION_FACTOR*propo.getStickVal(0) : 0;
+        velocityVector[1] = (abs(propo.getStickVal(1)) > STICK_TH) ? -1*STICK_CORRECTION_FACTOR*propo.getStickVal(1) : 0;
+        velocityVector[2] = (abs(propo.getStickVal(2)) > STICK_TH) ? STICK_CORRECTION_FACTOR*propo.getStickVal(2) : 0;
+    }
 
 #ifndef _USE_STEERING_
 #ifdef _USE_MECANUM_
