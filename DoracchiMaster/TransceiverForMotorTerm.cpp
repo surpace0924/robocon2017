@@ -42,6 +42,8 @@ void Transceiver::sendData(int pwm[], int usePort)
             Serial1.write(packet[i]);
         else if (usePort == 2)
             Serial2.write(packet[i]);
+        else if (usePort == 3)
+            Serial3.write(packet[i]);
     }
 }
 
@@ -85,6 +87,8 @@ void Transceiver::sendData(int pwm[], int arg[], int usePort)
             Serial1.write(packet[i]);
         else if (usePort == 2)
             Serial2.write(packet[i]);
+        else if (usePort == 3)
+            Serial3.write(packet[i]);
     }
     // Serial.println();
 }

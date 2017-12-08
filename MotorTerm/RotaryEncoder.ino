@@ -1,5 +1,3 @@
-#ifdef _USE_STEERING_
-#ifdef _USE_FN_
 #define ENCODER_A 2 // ロータリーエンコーダのA相ピン割り当て
 #define ENCODER_B 3 // ロータリーエンコーダのB相ピン割り当て
 /**************設定部**************/
@@ -81,6 +79,3 @@ double getAngle ()
 {
     return ((g_pulse * 360.0) / 400.0);
 }
-
-#endif
-#endif
