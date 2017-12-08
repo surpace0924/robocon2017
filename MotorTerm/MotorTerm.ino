@@ -123,14 +123,17 @@ void controlDriverForSteering(int nowAngle)
 
     int outputDir[2];
     int outputPwm[2];
+    // どらっちとらいたそはこっち
     outputDir[0] = dir[USE_MOTOR[0]];
     outputPwm[0] = pwm[USE_MOTOR[0]];
     outputDir[1] = dir[USE_MOTOR[1]];
     outputPwm[1] = pwm[USE_MOTOR[1]];
-//    outputDir[0] = directions(output);
-//    outputPwm[0] = abs(output);
-//    outputDir[1] = (abs(output) < 50) ? dir[USE_MOTOR[0]] : BRAKE;
-//    outputPwm[1] = pwm[USE_MOTOR[0]];
+    
+    // おろっちはこっち
+    // outputDir[0] = directions(output);
+    // outputPwm[0] = abs(output);
+    // outputDir[1] = (abs(output) < 50) ? dir[USE_MOTOR[0]] : BRAKE;
+    // outputPwm[1] = pwm[USE_MOTOR[0]];
 
     driveMotor(outputDir, outputPwm);
 }

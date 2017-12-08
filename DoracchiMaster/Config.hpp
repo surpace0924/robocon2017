@@ -7,10 +7,6 @@
 #ifndef _CONFIG_
 #define _CONFIG_
 
-// 移動機構の選択（使用する方のコメントアウトを外す、両方外すと動かない）
-// #define _USE_MECANUM_
-#define _USE_STEERING_
-
 // シリアル通信のボーレート
 #define BAUDRATE 57600
 
