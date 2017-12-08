@@ -28,9 +28,27 @@ void loop()
 {
     if (recieveData())
     {
-        servo0.write(arg[3]); 
-        servo1.write(arg[3]); 
-        servo2.write(arg[3]); 
-        servo3.write(arg[3]); 
+        int targetAngle[4] = {0};
+        for (int i = 0; i < 4; i++)
+            targetAngle[i] = arg[i];  
+
+        int outputSig[4] = {0};
+
+        for(int i = 0; i < 4; i++)
+        {
+            if(targetAngle[i] < 90)
+                targetAngle[i] += 180;
+                
+            outputSig[i] = map((180-targetAngle[i]),-100,129,0,180);
+        }
+        
+        Serial.print(targetAngle[0]);
+        Serial.print(" ");
+        Serial.println(outputSig[0]);
+
+        servo0.write(outputSig[0]);
+        servo1.write(outputSig[1]);
+        servo2.write(outputSig[2]); 
+        servo3.write(outputSig[3]);
     }
 }

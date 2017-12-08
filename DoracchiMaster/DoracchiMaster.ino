@@ -52,30 +52,27 @@ void loop()
     }
 }
 
+int arg[4] = {0};
 void move()
 {
     // 出力値を格納
     int pwm[4] = {0};
-    static int arg[4] = {0};
 
     // スティックの値を速度ベクトルに代入
     int velocityVector[3];
-    for (int i = 0; i < 3; i++)
-        velocityVector[i] = (abs(propo.getStickVal(i)) > STICK_TH) ? propo.getStickVal(i) : 0;
+    if(propo.getSwitchVal(0) == 2) 
+    {
+        for (int i = 0; i < 3; i++)
+            velocityVector[i] = (abs(propo.getStickVal(i)) > STICK_TH) ? STICK_CORRECTION_FACTOR*propo.getStickVal(i) : 0;
+    }
+    else
+    {
+        velocityVector[0] = (abs(propo.getStickVal(0)) > STICK_TH) ? -1*STICK_CORRECTION_FACTOR*propo.getStickVal(0) : 0;
+        velocityVector[1] = (abs(propo.getStickVal(1)) > STICK_TH) ? -1*STICK_CORRECTION_FACTOR*propo.getStickVal(1) : 0;
+        velocityVector[2] = (abs(propo.getStickVal(2)) > STICK_TH) ? STICK_CORRECTION_FACTOR*propo.getStickVal(2) : 0;
+    }
 
-#ifndef _USE_STEERING_
-#ifdef _USE_MECANUM_
-    mcnum.calculate(velocityVector, MT_MAXPOWER, pwm);
-    tx.sendData(pwm, MOVE_SERIALPORT);
-    tx.confirmData(velocityVector, pwm);
-#endif
-#endif
-
-#ifndef _USE_MECANUM_
-#ifdef _USE_STEERING_
     steer.calculate(velocityVector, MT_MAXPOWER, pwm, arg);
     tx.sendData(pwm, arg, MOVE_SERIALPORT);
     tx.confirmData(velocityVector, pwm, arg);
-#endif
-#endif
 }

@@ -9,12 +9,16 @@ void Steering::calculate(int _velocityVector[3], int maxOutputRate, int _pwm[4],
     {
         // 旋回成分のみ;
         _arg[0] = 145;
-        _arg[1] = 55;
+        _arg[1] = 35;
         _arg[2] = 145;
-        _arg[3] = 55;
+        _arg[3] = 35;
 
         for (int i = 0; i < 4; i++)
             _pwm[i] = (i == 0 || i == 3) ? -1*spinElement : spinElement;
+    }
+    else if(xElement == 0 && yElement == 0 && spinElement == 0)
+    {
+        
     }
     else
     {
@@ -38,7 +42,8 @@ void Steering::calculate(int _velocityVector[3], int maxOutputRate, int _pwm[4],
         for (int i = 0; i < 4; i++)
         {
             _arg[i] = angles(power[i][0], power[i][1]);
-            _arg[i] = (_arg[i] < 180) ? _arg[i] : _arg[i] - 180;  
+            _arg[i] = (_arg[i] < 180) ? _arg[i] : _arg[i] - 180;
+
             bufPwm[i] = abs(radiuses(abs(power[i][0]), abs(power[i][1])));
 
             // 最大値を格納

@@ -7,10 +7,8 @@ Arm::Arm(int pin)
 
 void Arm::controlBySW(int SWVal1, int SWVal2)
 {
-    bool canMove;
-    (SWVal1 == 0) ? canMove = true : canMove = false;
-    bool needsAutoAttack;
-    (SWVal2 != 2) ? needsAutoAttack = true : needsAutoAttack = false;
+    bool canMove = (SWVal1 == 0) ? true : false;
+    bool needsAutoAttack = (SWVal2 != 2) ? true : false;
 
     // アームをもとに戻す必要があるかどうか
     static bool needsReturnArm = true;
@@ -21,7 +19,7 @@ void Arm::controlBySW(int SWVal1, int SWVal2)
     {
         if (needsAutoAttack || needsComeback)
         {
-            needsComeback = autoAttack(needsReturnArm);
+            needsComeback = autoAttack(needsReturnArm, true);
             needsReturnArm = false;
         }
         else
@@ -33,31 +31,59 @@ void Arm::controlBySW(int SWVal1, int SWVal2)
     }
     else
     {
-        down();
+        if (needsAutoAttack || needsComeback)
+        {
+               needsComeback = autoAttack(needsReturnArm, false);
+            needsReturnArm = false;
+        }
+        else
+        {
+            down();
+            needsReturnArm = true;
+        }
         isAttacked = false;
     }
 }
 
 // 戻り値はもう一度このメソッドをコールする必要があるかどうか
-bool Arm::autoAttack(bool reset)
+bool Arm::autoAttack(bool reset, bool isUpping)
 {
     static bool _reset;
     _reset = reset;
     static unsigned long startTime = millis();
-
-    if (reset)
-        startTime = millis();
-
-    if (millis() - startTime < 1000)
-        down();
-    else if (millis() - startTime < 2000)
-        up();
+    if(isUpping)
+    {
+        if (reset)
+            startTime = millis();
+    
+        if (millis() - startTime < 800)
+            down();
+        else if (millis() - startTime < 1600)
+            up();
+        else
+        {
+            // 一連の処理が終了
+            startTime = millis();
+            _reset = true;
+            return false;
+        }
+    }
     else
     {
-        // 一連の処理が終了
-        startTime = millis();
-        _reset = true;
-        return false;
+        if (reset)
+            startTime = millis();
+
+        if (millis() - startTime < 800)
+            up();
+        else if (millis() - startTime < 1600)
+            down();
+        else
+        {
+            // 一連の処理が終了
+            startTime = millis();
+            _reset = true;
+            return false;
+        }
     }
 
     return true;
