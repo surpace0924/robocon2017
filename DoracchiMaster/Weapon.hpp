@@ -17,7 +17,7 @@ public:
     bool isAttacked;
 private:
     int CYLINDER_PIN;
-    bool autoAttack(bool reset);
+    bool autoAttack(bool reset, bool isUpping);
     void down();
     void up();
 };

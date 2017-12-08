@@ -1,3 +1,4 @@
+// PIDのやつ（たぶん正確じゃない）
 #ifndef StdPid
 #define StdPid
 

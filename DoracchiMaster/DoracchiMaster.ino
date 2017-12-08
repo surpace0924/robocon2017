@@ -43,7 +43,7 @@ void loop()
         // 4点バーストの制御
         burst.controlBySW(propo.getSwitchVal(3), propo.getSwitchVal(4));
 
-        // ステアを駆動させて警告
+        // ステアを駆動
         move();
     }
     else
@@ -52,14 +52,13 @@ void loop()
     }
 }
 
-
 int arg[4] = {0};
 void move()
 {
     // 出力値を格納
     int pwm[4] = {0};
 
-    // スティックの値を速度ベクトルに代入
+    // スティックの値を速度ベクトルに代入（SW(0)で前後入れ替え）
     int velocityVector[3];
     if(propo.getSwitchVal(0) == 2) 
     {
@@ -73,19 +72,7 @@ void move()
         velocityVector[2] = (abs(propo.getStickVal(2)) > STICK_TH) ? STICK_CORRECTION_FACTOR*propo.getStickVal(2) : 0;
     }
 
-#ifndef _USE_STEERING_
-#ifdef _USE_MECANUM_
-    mcnum.calculate(velocityVector, MT_MAXPOWER, pwm);
-    tx.sendData(pwm, MOVE_SERIALPORT);
-    tx.confirmData(velocityVector, pwm);
-#endif
-#endif
-
-#ifndef _USE_MECANUM_
-#ifdef _USE_STEERING_
     steer.calculate(velocityVector, MT_MAXPOWER, pwm, arg);
     tx.sendData(pwm, arg, MOVE_SERIALPORT);
     tx.confirmData(velocityVector, pwm, arg);
-#endif
-#endif
 }
